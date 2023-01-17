@@ -12,8 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static com.example.springsecuritysample.security.ApplicationUserRole.ADMIN;
-import static com.example.springsecuritysample.security.ApplicationUserRole.STUDENT;
+import static com.example.springsecuritysample.security.ApplicationUserRole.*;
 
 @Configuration
 @EnableWebSecurity
@@ -25,9 +24,10 @@ public class ApplicationSecurityConfig{
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/*", "index", "/css/*", "/js/*")
-                .permitAll()
+                .requestMatchers("/**", "index", "/css/*", "/js/*", "api/**").permitAll()
+                .requestMatchers("api/student/*").hasRole(STUDENT.name())
                 .anyRequest()
                 .authenticated()
                 .and().httpBasic();
@@ -41,12 +41,17 @@ public class ApplicationSecurityConfig{
                 .password(passwordEncoder.encode("pass"))
                 .roles(STUDENT.name())
                 .build();
-        User.builder()
+        UserDetails student2 = User.builder()
                 .username("st2")
                 .password(passwordEncoder.encode("pass2"))
                 .roles(ADMIN.name())
                 .build();
-        return new InMemoryUserDetailsManager(student1);
+        UserDetails student3 = User.builder()
+                .username("st3")
+                .password(passwordEncoder.encode("pass3"))
+                .roles(ADMINTRAINEE.name())
+                .build();
+        return new InMemoryUserDetailsManager(student1, student2, student3);
     }
 
 }
