@@ -12,7 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+
+import java.util.concurrent.TimeUnit;
 
 import static com.example.springsecuritysample.security.ApplicationUserRole.*;
 
@@ -36,7 +37,10 @@ public class ApplicationSecurityConfig{
                 .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
-                .defaultSuccessUrl("/courses",true);
+                .defaultSuccessUrl("/courses",true)
+                .and()
+                .rememberMe().tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(15))
+                .key("secured");
         return http.build();
     }
 
